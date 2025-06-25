@@ -1,6 +1,8 @@
 name: Build docs for v5.2
 
 on:
+  push:
+    branches: [ maintenance/v5.1 ]
   workflow_dispatch:
 
 jobs:
