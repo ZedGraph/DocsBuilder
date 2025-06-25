@@ -1,0 +1,42 @@
+name: Build docs for v5.2
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.GH_DOC_DEPLOY_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+
+      - uses: actions/checkout@v2
+
+      - name: Clone zedgraph.github.io repo
+        run: |
+         git clone git@github.com:ZedGraph/zedgraph.github.io.git site
+
+      - name: Clone ZedGraph/ZedGraph repo
+        run: |
+         git clone --branch maintenance/v5.2 git@github.com:ZedGraph/ZedGraph.git sources
+
+      - name: Build Documentation
+        uses: nikeee/docfx-action@v1.0.0
+        with:
+         args: v5.2/docfx.json
+
+      - name: Publish to github pages
+        run: |
+          cd site
+          rm -rf v5.2
+          cp -a ../v5.2/_site/. ./v5.2/
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add .
+          git commit --reset-author --amend -m "Deploy v5.x docs"
+          git push --force origin
