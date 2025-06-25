@@ -1,8 +1,8 @@
-name: Build docs for v5.2
+name: Build docs for v5.1
 
 on:
   push:
-    branches: [ maintenance/v5.1 ]
+    branches: [ feature/v5.1 ]
   workflow_dispatch:
 
 jobs:
@@ -25,20 +25,20 @@ jobs:
 
       - name: Clone ZedGraph/ZedGraph repo
         run: |
-         git clone --branch maintenance/v5.2 git@github.com:ZedGraph/ZedGraph.git sources
+         git clone --branch maintenance/v5.1 git@github.com:ZedGraph/ZedGraph.git sources
 
       - name: Build Documentation
         uses: nikeee/docfx-action@v1.0.0
         with:
-         args: v5.2/docfx.json
+         args: v5.1/docfx.json
 
       - name: Publish to github pages
         run: |
           cd site
-          rm -rf v5.2
-          cp -a ../v5.2/_site/. ./v5.2/
+          rm -rf v5.1
+          cp -a ../v5.1/_site/. ./v5.1/
           git config user.name github-actions
           git config user.email github-actions@github.com
           git add .
-          git commit --reset-author --amend -m "Deploy v5.x docs"
+          git commit --reset-author --amend -m "Deploy v5.1 docs"
           git push --force origin
