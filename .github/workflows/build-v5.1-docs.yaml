@@ -7,38 +7,43 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
 
     steps:
       - name: Setup SSH
+        shell: bash
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.GH_DOC_DEPLOY_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
           ssh-keyscan github.com >> ~/.ssh/known_hosts
 
       - uses: actions/checkout@v2
 
       - name: Clone zedgraph.github.io repo
+        shell: bash
         run: |
-         git clone git@github.com:ZedGraph/zedgraph.github.io.git site
+          git clone git@github.com:ZedGraph/zedgraph.github.io.git site
 
       - name: Clone ZedGraph/ZedGraph repo
+        shell: bash
         run: |
-         git clone --branch maintenance/v5.1 git@github.com:ZedGraph/ZedGraph.git sources
+          git clone --branch maintenance/v5.1 git@github.com:ZedGraph/ZedGraph.git sources
 
       - name: Build Documentation
         uses: nikeee/docfx-action@v1.0.0
         with:
-         args: v5.1/docfx.json
+          args: v5.1/docfx.json
 
       - name: Publish to github pages
+        shell: bash
         run: |
           cd site
           rm -rf v5.1
+          mkdir v5.1
           cp -a ../v5.1/_site/. ./v5.1/
           git config user.name github-actions
           git config user.email github-actions@github.com
           git add .
           git commit --reset-author --amend -m "Deploy v5.1 docs"
           git push --force origin
+          
